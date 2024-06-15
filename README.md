@@ -1,3 +1,8 @@
+<h1 align="center">
+# Learner Bot
+</h1>
+This is a simple Discord bot that provides a few fun commands such as greeting users, flipping a coin, fetching random images of cats, poodles, or any other query from the Bing Image Search API, and playing music from YouTube.
+
 ### Prerequisites
 
 - Python 3.6+
@@ -7,9 +12,6 @@
 - FFpmeg
 - Bing API Key
 
-# Learner Bot
-
-This is a simple Discord bot that provides a few fun commands such as greeting users, flipping a coin, fetching random images of cats, poodles, or any other query from the Bing Image Search API, and playing music from YouTube.
 
 ## Features
 
@@ -20,22 +22,22 @@ This is a simple Discord bot that provides a few fun commands such as greeting u
 
 ## Commands
 - General Commands
-    **/hello**: The bot will greet the user.\n
-    **/flip**: The bot will flip a coin and return "Heads!" or "Tails!".\n
-    **/cats**: The bot will fetch a random image of a cat.\n
-    **/image** [query]: The bot will fetch a random image based on the provided query.\n
-    **/poodle**: The bot will fetch a random image of a poodle.\n
+    - /hello: The bot will greet the user.
+    - /flip: The bot will flip a coin and return "Heads!" or "Tails!".
+    - /cats: The bot will fetch a random image of a cat.
+    - /image: [query]: The bot will fetch a random image based on the provided query.
+    - /poodle: The bot will fetch a random image of a poodle.
 ## 
 - Music Commands
-    **/join**: The bot will join the user's voice channel.\n
-    **/leave**: The bot will leave the current voice channel.\n
-    **/add** [song_name]: Add a song to the queue.\n
-    **/queue**: Display the current song queue.\n
-    **/remove** [song_num]: Remove a song from the queue by its position.\n
-    **/clear**: Clear all songs from the queue.\n
-    **/play**: Play the songs in the queue.\n
-    **/stop**: Stop the current song.\n
-    **/skip**: Skip the current song.\n
-    **/now_playing**: Display the currently playing song.\n
+    - /join: The bot will join the user's voice channel.
+    - /leave: The bot will leave the current voice channel.
+    - /add [song_name]: Add a song to the queue.
+    - /queue: Display the current song queue.
+    - /remove [song_num]: Remove a song from the queue by its position.
+    - /clear: Clear all songs from the queue.
+    - /play: Play the songs in the queue.
+    - /stop: Stop the current song.
+    - /skip: Skip the current song.
+    - /now_playing: Display the currently playing song.
 
 

@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import yt_dlp as youtube_dl
 import asyncio
+import time
 
 """
 Bunch of fun code for the music commands for leaner bot!!! This should
@@ -24,7 +25,8 @@ ytdl_format_options = {
     'source_address': '0.0.0.0'  # Bind to all available IPv4 addresses
 }
 ffmpeg_options = {
-    'options': '-vn'
+    'options': '-vn',
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5'
 }
 
 ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
@@ -35,6 +37,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.data = data
         self.title = data.get('title')
         self.url = data.get('url')
+        self.duration = data.get('duration') 
 
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=False):
@@ -52,6 +55,8 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.song_list = []
+        self.current_player = None
+        self.start_time = None 
 
     # This add a join command for the bot to join the selected uses channel
     @commands.command()
@@ -86,8 +91,8 @@ class Music(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def remove(self, ctx, song_num):
-        index = int(song_num) - 1
+    async def remove(self, ctx, song_num: int):
+        index = song_num - 1
         if 0 <= index < len(self.song_list):
             removed_song = self.song_list.pop(index)
             await ctx.send(f"'{removed_song}' has been removed from the queue")
@@ -116,16 +121,58 @@ class Music(commands.Cog):
         async with ctx.typing():
             try:
                 song_name = self.song_list.pop(0)  # Get the first song in the queue
-                player = await YTDLSource.from_url(f"ytsearch:{song_name}", loop=self.bot.loop, stream=True)
-                ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
-                await ctx.send(f'Now playing: {player.title}')
+                self.current_player = await YTDLSource.from_url(f"ytsearch:{song_name}", loop=self.bot.loop, stream=True)
+                ctx.voice_client.play(self.current_player, after=lambda e: self.bot.loop.create_task(self.play_next(ctx)))
+                self.start_time = time.time()
+                await ctx.send(f'Now playing: {self.current_player.title} ({self.current_player.duration // 60}:{self.current_player.duration % 60})')
             except Exception as e:
                 await ctx.send(f'An error occurred: {e}')
+                print(f'An error occurred while trying to play the song: {e}')
+
+    async def play_next(self, ctx):
+        if self.song_list:
+            async with ctx.typing():
+                try:
+                    song_name = self.song_list.pop(0)  # Get the next song in the queue
+                    self.current_player = await YTDLSource.from_url(f"ytsearch:{song_name}", loop=self.bot.loop, stream=True)
+                    ctx.voice_client.play(self.current_player, after=lambda e: self.bot.loop.create_task(self.play_next(ctx)))
+                    self.start_time = time.time()
+                    await ctx.send(f'Now playing: {self.current_player.title} ({self.current_player.duration // 60}:{self.current_player.duration % 60})')
+                except Exception as e:
+                    await ctx.send(f'An error occurred while trying to play the next song: {e}')
+                    print(f'An error occurred while trying to play the next song: {e}')
+        else:
+            await ctx.send("No more songs in the queue.")
 
     @commands.command()
     async def stop(self, ctx):
         if ctx.voice_client:
             ctx.voice_client.stop()
+        
+    @commands.command()
+    async def skip(self, ctx):
+        if not self.song_list:
+            await ctx.send('Cannot skip, the queue is empty.')
+            return
+
+        # Stop the current song if playing
+        if ctx.voice_client and ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
+
+        # Play the next song in the queue
+        await self.play_next(ctx)
+
+    @commands.command()
+    async def now_playing(self, ctx):
+        if not self.current_player:
+            await ctx.send("No song is currently playing.")
+            return
+        
+        elapsed_time = int(time.time() - self.start_time)
+        total_duration = self.current_player.duration
+
+        await ctx.send(f"Now playing: {self.current_player.title} \Duration: {total_duration // 60}:{total_duration % 60} \nElapsed time: {elapsed_time // 60}:{elapsed_time % 60}")
+
 
 async def setup(bot):
     await bot.add_cog(Music(bot))

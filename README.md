@@ -41,6 +41,7 @@ This is a simple Discord bot that provides a few fun commands such as greeting u
     - /now_playing: Display the currently playing song.
 
 <h1 align="center">Terms of Service</h1>
+
 ## **Introduction**
 Welcome to Learner Bot! By using Learner Bot, you agree to comply with and be bound by the following terms and conditions of use. Please review these terms carefully. If you disagree with these terms, you should not use this bot.
 
@@ -76,7 +77,7 @@ To the fullest extent permitted by law, we shall not be liable for any indirect,
 We reserve the right to modify these terms at any time. Any changes will be effective immediately upon posting of the revised terms. Your continued use of the bot following the posting of changes to these terms means you accept the changes.
 
 ## **Contact Information**
-If you have any questions about these Terms of Service, please contact me via GitHub.
+If you have any questions about these Terms of Service, please contact me via GitHub or join the [Discord](https://discord.gg/8gvubBdH) for support.
 
 
 

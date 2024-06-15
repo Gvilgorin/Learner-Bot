@@ -14,35 +14,29 @@ bing_file = open('bing_api_key.txt', 'r')
 BING_API_KEY = bing_file.read()
 bing_file.close() # closes file to open space
 
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
-tree = bot.tree
+bot = commands.Bot(command_prefix="/", intents=discord.Intents.all())
 
 # Tells the sever the bot is up and running and ready for use
 @bot.event
 async def on_ready():
     print("Hello! bot is ready!")
-    try:
-        synced = await bot.tree.sync()
-        print(f'Successfully synced {len(synced)} command(s)')
-    except Exception as e:
-        print(f'Failed to sync commands: {e}')
 
 # Bot greets users who invokes command (!hello)
-@tree.command(name="hello", description="Reply's to user with gretting")
-async def hello(interaction: discord.Interaction):
-    await interaction.response.send_message("Hello there!")
+@bot.command()
+async def hello(ctx):
+    await ctx.reply("Hello there!")
 
 # Coin flip fuction - It flips a freaking coin what else should I say command(!flip)
-@tree.command(name="coin_flip", description="Flips a coin")
-async def flip(interaction: discord.Interaction):
+@bot.command()
+async def flip(ctx):
     num = random.randint(1,2)
     if num == 1:
-        await interaction.response.send_message("Heads!")
+        await ctx.send("Heads!")
     elif num == 2:
-        await interaction.response.send_message("Tails!")
+        await ctx.send("Tails!")
 
-@tree.command(name="random_cat", description="Sends a picture of a random cat")
-async def cats(interaction: discord.Interaction):
+@bot.command()
+async def cats(ctx):
     query = "cats"
     headers = {"Ocp-Apim-Subscription-key": BING_API_KEY}
     params = {"q":query, "count": 90} 
@@ -51,22 +45,22 @@ async def cats(interaction: discord.Interaction):
     response = requests.get(url, headers=headers, params=params)
 
     if response.status_code != 200:
-        await interaction.response.send_message("Failed to retrieve images. Please try again later.")
+        await ctx.send("Failed to retrieve images. Please try again later.")
         return
     
     data = response.json()
 
     if 'value' not in data or len(data['value']) == 0:
-        await interaction.response.send_message("No images found for cats.")
+        await ctx.send("No images found for cats.")
         return
     
     random_image = random.choice(data['value'])
     image_url = random_image['contentUrl']
 
-    await interaction.response.send_message(image_url )
+    await ctx.send(image_url )
 
-@tree.command(name="image", description="Sends random picture user requests")
-async def image(interaction: discord.Interaction, query: str):
+@bot.command()
+async def image(ctx, *, query):
     headers = {"Ocp-Apim-Subscription-key": BING_API_KEY}
     params = {"q":query, "count": 90}
 
@@ -74,22 +68,22 @@ async def image(interaction: discord.Interaction, query: str):
     response = requests.get(url, headers=headers, params=params)
     
     if response.status_code != 200:
-        await interaction.response.send_message("Failed to retrieve images. Please try again later.")
+        await ctx.send("Failed to retrieve images. Please try again later.")
         return
     
     data = response.json()
 
     if 'value' not in data or len(data['value']) == 0:
-        await interaction.response.send_message(f"No images found for '{query}'.")
+        await ctx.send(f"No images found for '{query}'.")
         return
     
     random_image = random.choice(data['value'])
     image_url = random_image['contentUrl']
 
-    await interaction.response.send_message(image_url )
+    await ctx.send(image_url )
 
-@tree.command(name="poodle", description="Send random photo of a poodle to chat")
-async def poodle(interaction: discord.Interaction):
+@bot.command()
+async def poodle(ctx):
     query = "poodles"
     headers = {"Ocp-Apim-Subscription-key": BING_API_KEY}
     params = {"q":query, "count": 90} 
@@ -98,19 +92,19 @@ async def poodle(interaction: discord.Interaction):
     response = requests.get(url, headers=headers, params=params)
 
     if response.status_code != 200:
-        await interaction.response.send_message("Failed to retrieve images. Please try again later.")
+        await ctx.send("Failed to retrieve images. Please try again later.")
         return
     
     data = response.json()
 
     if 'value' not in data or len(data['value']) == 0:
-        await interaction.response.send_message("No images found for poodles.")
+        await ctx.send("No images found for poodles.")
         return
     
     random_image = random.choice(data['value'])
     image_url = random_image['contentUrl']
 
-    await interaction.response.send_message(image_url )
+    await ctx.send(image_url )
 
 async def main():
     async with bot:

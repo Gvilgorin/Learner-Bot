@@ -56,12 +56,11 @@ class Music(commands.Cog):
         self.bot = bot
         self.song_list = []
         self.current_player = None
-        self.start_time = None
-        self.play_next_song = True
+        self.start_time = None 
 
     # This add a join command for the bot to join the selected uses channel
     @commands.command()
-    async def join(self, ctx):
+    async def join(slef, ctx):
         if not ctx.message.author.voice:
             await ctx.send("You are not connected to a voice channel")
             return
@@ -119,31 +118,34 @@ class Music(commands.Cog):
                 await ctx.send("You are not connected to a voice channel")
                 return
 
-        self.play_next_song = True
-        await self._play_song(ctx)
-
-    async def _play_song(self, ctx):
-        if not self.song_list:
-            await ctx.send("No more songs in the queue.")
-            return
-        
-        if not self.play_next_song:
-            return
-        
         async with ctx.typing():
             try:
-                song_name = self.song_list.pop(0)
+                song_name = self.song_list.pop(0)  # Get the first song in the queue
                 self.current_player = await YTDLSource.from_url(f"ytsearch:{song_name}", loop=self.bot.loop, stream=True)
-                ctx.voice_client.play(self.current_player, after=lambda e: self.bot.loop.create_task(self._play_song(ctx)))
+                ctx.voice_client.play(self.current_player, after=lambda e: self.bot.loop.create_task(self.play_next(ctx)))
                 self.start_time = time.time()
                 await ctx.send(f'Now playing: {self.current_player.title} ({self.current_player.duration // 60}:{self.current_player.duration % 60})')
             except Exception as e:
                 await ctx.send(f'An error occurred: {e}')
                 print(f'An error occurred while trying to play the song: {e}')
 
+    async def play_next(self, ctx):
+        if self.song_list:
+            async with ctx.typing():
+                try:
+                    song_name = self.song_list.pop(0)  # Get the next song in the queue
+                    self.current_player = await YTDLSource.from_url(f"ytsearch:{song_name}", loop=self.bot.loop, stream=True)
+                    ctx.voice_client.play(self.current_player, after=lambda e: self.bot.loop.create_task(self.play_next(ctx)))
+                    self.start_time = time.time()
+                    await ctx.send(f'Now playing: {self.current_player.title} ({self.current_player.duration // 60}:{self.current_player.duration % 60})')
+                except Exception as e:
+                    await ctx.send(f'An error occurred while trying to play the next song: {e}')
+                    print(f'An error occurred while trying to play the next song: {e}')
+        else:
+            await ctx.send("No more songs in the queue.")
+
     @commands.command()
     async def stop(self, ctx):
-        self.play_next_song = False
         if ctx.voice_client:
             ctx.voice_client.stop()
         
@@ -157,7 +159,10 @@ class Music(commands.Cog):
         if ctx.voice_client and ctx.voice_client.is_playing():
             ctx.voice_client.stop()
 
-    @commands.command(aliases=['np', 'now playing'])
+        # Play the next song in the queue
+        await self.play_next(ctx)
+
+    @commands.command()
     async def now_playing(self, ctx):
         if not self.current_player:
             await ctx.send("No song is currently playing.")
@@ -166,9 +171,7 @@ class Music(commands.Cog):
         elapsed_time = int(time.time() - self.start_time)
         total_duration = self.current_player.duration
 
-        await ctx.send(f"Now playing: {self.current_player.title}\n"
-               f"Duration: {total_duration // 60}:{total_duration % 60}\n"
-               f"Elapsed time: {elapsed_time // 60}:{elapsed_time % 60}")
+        await ctx.send(f"Now playing: {self.current_player.title} \Duration: {total_duration // 60}:{total_duration % 60} \nElapsed time: {elapsed_time // 60}:{elapsed_time % 60}")
 
 
 async def setup(bot):

@@ -1,7 +1,7 @@
 <h1 align="center">Learner Bot</h1>
 This is a simple Discord bot that provides a few fun commands such as greeting users, flipping a coin, fetching random images of cats, poodles, or any other query from the Bing Image Search API, and playing music from YouTube.
 
-### Prerequisites
+# Prerequisites
 
 - Python 3.6+
 - `discord.py[voice]` library
@@ -27,16 +27,19 @@ This is a simple Discord bot that provides a few fun commands such as greeting u
     - `/poodle`: The bot will fetch a random image of a poodle.
 ## 
 - Music Commands
-    - `/join`: The bot will join the user's voice channel.
-    - `/leave`: The bot will leave the current voice channel.
-    - `/add [song_name]`: Add a song to the queue.
-    - `/queue`: Display the current song queue.
-    - `/remove [song_num]`: Remove a song from the queue by its position.
-    - `/clear`: Clear all songs from the queue.
-    - `/play`: Play the songs in the queue.
-    - `/stop`: Stop the current song.
-    - `/skip`: Skip the current song.
-    - `/now_playing`: Display the currently playing song.
+    - `!join`: The bot will join the user's voice channel.
+    - `!leave`: The bot will leave the current voice channel.
+    - `!add [song_name]`: Add a song to the queue.
+    - `!queue`: Display the current song queue.
+    - `!remove [song_num]`: Remove a song from the queue by its position.
+    - `!clear`: Clear all songs from the queue.
+    - `!play`: Play the song(s) in the queue and resumes paused songs.
+        - `!play [song_name]`: Plays song choice automaticlly if no song is in queue / adds song to queue if song is already playing
+    - `!stop`: Stop the current song.
+    - `!skip`: Skip the current song.
+    - `!pause`: Pauses song that is currently playing
+    - `!move [song_queue_position] [new_position]`: Moves song to new assigned position in queue
+    - `!now_playing`: Display the currently playing song.
 
 <!-- <h1 align="center">Terms of Service</h1>
 

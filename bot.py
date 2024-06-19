@@ -3,18 +3,10 @@ from discord.ext import commands
 import requests
 import json, os, asyncio
 import random
+from dotenv import load_dotenv
 
-# Reads discord token from file
-TOKEN_FILE = open('bot_token.txt', 'r')
-BOT_TOKEN = TOKEN_FILE.read()
-TOKEN_FILE.close() # closes file to open space
-
-# Reads Bing API key from file
-bing_file = open('bing_api_key.txt', 'r')
-BING_API_KEY = bing_file.read()
-bing_file.close() # closes file to open space
-
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+load_dotenv()
+bot = commands.Bot(command_prefix="!", intents=discord.Intents.all(), application_id=int(os.getenv("APPLICATION_ID")))
 tree = bot.tree
 
 # Tells the sever the bot is up and running and ready for use
@@ -22,6 +14,7 @@ tree = bot.tree
 async def on_ready():
     print("Hello! bot is ready!")
     try:
+        await bot.tree.sync()   
         synced = await bot.tree.sync()
         print(f'Successfully synced {len(synced)} command(s)')
     except Exception as e:
@@ -33,7 +26,7 @@ async def hello(interaction: discord.Interaction):
     await interaction.response.send_message("Hello there!")
 
 # Coin flip fuction - It flips a freaking coin what else should I say command(!flip)
-@tree.command(name="coin_flip", description="Flips a coin")
+@tree.command(name="flip", description="Flips a coin")
 async def flip(interaction: discord.Interaction):
     num = random.randint(1,2)
     if num == 1:
@@ -44,7 +37,7 @@ async def flip(interaction: discord.Interaction):
 @tree.command(name="random_cat", description="Sends a picture of a random cat")
 async def cats(interaction: discord.Interaction):
     query = "cats"
-    headers = {"Ocp-Apim-Subscription-key": BING_API_KEY}
+    headers = {"Ocp-Apim-Subscription-key": os.getenv("BING_API_KEY")}
     params = {"q":query, "count": 90} 
 
     url = "https://api.bing.microsoft.com/v7.0/images/search"
@@ -67,7 +60,7 @@ async def cats(interaction: discord.Interaction):
 
 @tree.command(name="image", description="Sends random picture user requests")
 async def image(interaction: discord.Interaction, query: str):
-    headers = {"Ocp-Apim-Subscription-key": BING_API_KEY}
+    headers = {"Ocp-Apim-Subscription-key": os.getenv("BING_API_KEY")}
     params = {"q":query, "count": 90}
 
     url = "https://api.bing.microsoft.com/v7.0/images/search"
@@ -91,7 +84,7 @@ async def image(interaction: discord.Interaction, query: str):
 @tree.command(name="poodle", description="Send random photo of a poodle to chat")
 async def poodle(interaction: discord.Interaction):
     query = "poodles"
-    headers = {"Ocp-Apim-Subscription-key": BING_API_KEY}
+    headers = {"Ocp-Apim-Subscription-key": os.getenv("BING_API_KEY")}
     params = {"q":query, "count": 90} 
 
     url = "https://api.bing.microsoft.com/v7.0/images/search"
@@ -115,6 +108,6 @@ async def poodle(interaction: discord.Interaction):
 async def main():
     async with bot:
         await bot.load_extension('music')
-        await bot.start(BOT_TOKEN)
+        await bot.start(os.getenv("BOT_TOKEN"))
 
 asyncio.run(main())
